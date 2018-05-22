@@ -1,0 +1,90 @@
+html,
+body,
+#root {
+  height: 100%;
+  background-color: #F3F3F3;
+}
+
+/* For demo */
+
+.ant-carousel .slick-slide {
+  text-align: center;
+  height: 100%;
+  line-height: 100%;
+  background: #364d79;
+  overflow: hidden;
+}
+
+.ant-carousel .slick-slide h3 {
+  color: #fff;
+}
+
+.lottery_title {
+  font-size: 2.3rem;
+  color: #333;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+.lottery_header {
+  height: 80px;
+  background-color: #fff;
+  padding-left: 200px;
+  padding-right: 200px;
+}
+
+.lottery_header_item {
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #1d1d1d;
+  font-size: 1.8rem;
+}
+
+.lottery_content {
+  margin-left: 200px;
+  margin-right: 200px;
+}
+
+.events-box {
+  background: #fff;
+  width: 100%;
+}
+
+.events-box:hover {
+  box-shadow: 0 2px 12px #cccccc;
+  -webkit-transition: box-shadow .3s ease-in-out;
+  -moz-transition: box-shadow .3s ease-in-out;
+  -o-transition: box-shadow .3s ease-in-out;
+  transition: box-shadow .3s ease-in-out;
+  display: block;
+  cursor: pointer;
+}
+
+.events-box img {
+  width: 100%;
+  height: 200px;
+}
+
+.text-content {
+  padding: 1.2rem 1.2rem 1rem;
+  font-size: .8rem;
+}
+
+.lottery_footer {
+  height: 200px;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  color: #b2b2b2;
+  font-weight: 200;
+  font-size: .8rem;
+}
+
+.lottery_detail_content p {
+  font-size: 1.2rem
+}
+
+.lottery_detail_content li {
+  font-size: 1.2rem
+}
