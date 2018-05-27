@@ -6,7 +6,7 @@
   "dependencies": {
     "antd": "^3.0.0",
     "moment": "^2.19.3",
-    "nebpay": "0.0.6",
+    "nebpay": "0.0.5",
     "nebulas": "^0.5.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

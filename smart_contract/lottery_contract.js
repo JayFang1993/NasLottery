@@ -80,7 +80,7 @@ LotteryContract.prototype = {
     },
     addLottery: function (title, desc, award, awardCount) {
         this.lotteryCount++
-        var id = this.lotteryCount
+            var id = this.lotteryCount
         var LotteryObj = new Lottery()
         LotteryObj.id = id
         LotteryObj.starter = Blockchain.transaction.from
@@ -95,6 +95,19 @@ LotteryContract.prototype = {
         return {
             'errcode': null,
             'lottery': LotteryObj
+        }
+    },
+    getOneLottery: function (id) {
+        var Lottery = this.lotteries.get(id)
+        if (Lottery == undefined) {
+            return {
+                'errcode': -1,
+                'msg': 'no this lottery'
+            }
+        }
+        return {
+            'errcode': null,
+            'lottery': Lottery
         }
     },
     joinLottery: function (id, username) {

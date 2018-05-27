@@ -14,32 +14,12 @@ const { TextArea } = Input;
 const FormItem = Form.Item;
 var NebPay = require("nebpay");
 var Nebulas = require('nebulas')
-//合约地址：n22efHoRF4V4bf8q3U23K1yzga1onfQsoJm
-//交易地址：01a4fba357bcf03bfc4b76a9c1a98dd5e17f3bab8e8ee6081033cae024a5f22b
-//钱包地址：n1JaALxEwFH8d1hZbLADButrYsH9L7BXGwZ
+//交易地址：581040fa7570c118d34486e53c383cc37e39243f0c82316cd004daf667635546
 
 var nebPay = new NebPay();
 var neb = new Nebulas.Neb(new Nebulas.HttpRequest("https://testnet.nebulas.io"));
 var Account = Nebulas.Account;
-const dappAddress = "n22efHoRF4V4bf8q3U23K1yzga1onfQsoJm"
-
-var listData = [];
-function getPlanList() {
-  var from = "n1JaALxEwFH8d1hZbLADButrYsH9L7BXGwZ"
-  var value = "0";
-  var nonce = "0"
-  var gas_price = "1000000"
-  var gas_limit = "2000000"
-  var callFunction = "getLotterys";
-  var contract = {
-    "function": callFunction,
-    "args": "\[\]"
-  }
-  neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then((resp) => {
-    var result = JSON.parse(resp['result']);
-    listData = result['lotteries'];
-  });
-}
+const dappAddress = "n1zpWAVdpwvtRFRgt8X89yojk2wAXGztMSy"
 
 function addLottery(title, desc, award, awardCount, callback) {
   var value = "0";
@@ -53,13 +33,34 @@ function addLottery(title, desc, award, awardCount, callback) {
 
 class IndexPage extends React.Component {
   state = { visible: false }
+  listData = [];
   showModal = () => {
     this.setState({
       visible: true,
     });
   }
+  getPlanList = () => {
+    var from = "n1Xw19Rfx3RxUnTTHtuYkwGrF42HwdXiZMB"
+    var value = "0";
+    var nonce = "0"
+    var gas_price = "1000000"
+    var gas_limit = "2000000"
+    var callFunction = "getLotterys";
+    var contract = {
+      "function": callFunction,
+      "args": "\[\]"
+    }
+    neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then((resp) => {
+      var result = JSON.parse(resp['result']);
+      this.listData = result['lotteries'];
+      this.forceUpdate()
+    });
+  }
+  componentDidMount = () => {
+    this.getPlanList()
+  }
   render() {
-    getPlanList()
+    const AddFormDialog = Form.create()(AddForm);
     return (
       <div>
         <div>
@@ -82,7 +83,7 @@ class IndexPage extends React.Component {
         <div className="lottery_content">
           <List
             grid={{ gutter: 20, xs: 3 }}
-            dataSource={listData}
+            dataSource={this.listData}
             renderItem={item => (
               <List.Item>
                 <Link to='/lottery/1'>
@@ -160,7 +161,6 @@ class AddForm extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    console.log('newProps:' + newProps.visable)
     this.setState({ visable: newProps.visable });
   }
   render() {
@@ -221,10 +221,89 @@ class AddForm extends React.Component {
     );
   }
 }
-const AddFormDialog = Form.create()(AddForm);
-
 
 class DetailPage extends React.Component {
+  lottery = {}
+  username = ''
+  state = {
+    visible: false
+  }
+
+  submitCallback = (resp) => {
+    var intervalQuery = setInterval(() => {
+      this.setState({ visible: false });
+      neb.api.getTransactionReceipt({ hash: resp["txhash"] }).then((receipt) => {
+        if (receipt["status"] === 2) {
+          message.warning('交易中，请稍后...', 2);
+        } else if (receipt["status"] === 1) {
+          message.success('交易成功!!!');
+          clearInterval(intervalQuery)
+        } else {
+          message.error('交易失败!!!');
+          clearInterval(intervalQuery)
+        }
+      });
+    }, 3000);
+  }
+  usernameChange = (e) => {
+    this.username = e.target.value
+  }
+  handleCancel = () => {
+    this.setState({
+      visible: false
+    })
+  }
+  handleOk = () => {
+    var id = this.props.params['id']
+    this.joinLottery(id, this.username)
+  }
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  }
+  handleOpen = () => {
+    var id = this.props.params['id']
+    this.openLottery(id)
+  }
+  getLottery = (id) => {
+    var from = "n1Xw19Rfx3RxUnTTHtuYkwGrF42HwdXiZMB"
+    var value = "0";
+    var nonce = "0"
+    var gas_price = "1000000"
+    var gas_limit = "2000000"
+    var callFunction = "getOneLottery";
+    var contract = {
+      "function": callFunction,
+      "args": "\[" + id + "\]"
+    }
+    neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then((resp) => {
+      console.log(resp)
+      var result = JSON.parse(resp['result']);
+      this.lottery = result['lottery'];
+      this.forceUpdate()
+    });
+  }
+  openLottery = (id) => {
+    var value = "0";
+    var callFunction = "openLottery"
+    var callArgs = "[\"" + id + "\"]"
+    nebPay.call(dappAddress, value, callFunction, callArgs, {
+      listener: this.submitCallback
+    });
+  }
+  joinLottery = (id, username) => {
+    var value = "0";
+    var callFunction = "joinLottery"
+    var callArgs = "[\"" + id + "\",\"" + username + "\"]"
+    nebPay.call(dappAddress, value, callFunction, callArgs, {
+      listener: this.submitCallback
+    });
+  }
+  componentDidMount = () => {
+    var id = this.props.params['id']
+    this.getLottery(id)
+  }
   render() {
     return (
       <div>
@@ -234,29 +313,63 @@ class DetailPage extends React.Component {
               <Col span={6} className="lottery_header_item"><img className="lottery_header_img" src="https://nebulas.io/assets/images/nebulasx60.png" /></Col>
               <Col span={8} offset={2} className="lottery_header_item"><center>去中心化抽奖系统</center></Col>
             </Row>
-            <AddFormDialog />
           </div>
           <Row style={{ marginTop: 50, marginBottom: 50 }}>
-            <Col span={6} />
-            <Col span={12} className="lottery_detail_content">
-              <center><h1>抽奖标题</h1></center>
+            <Col span={5} />
+            <Col span={14} className="lottery_detail_content">
+              <center><h1>{this.lottery['title']}</h1></center>
               <h2>抽奖描述</h2>
-              <p>这是一段抽奖描述</p>
+              <p>{this.lottery['desc']}</p>
               <h2>奖品</h2>
-              <p>书*1</p>
+              <p>{this.lottery['award'] + ' * ' + this.lottery['awardCount']}</p>
               <h2>抽奖状态</h2>
-              <p><Tag color="red">进行中</Tag></p>
+              <div style={{ marginBottom: 15 }} >
+                <Tag color="red">
+                  {this.lottery['state'] == 'ing' &&
+                    '进行中'
+                  }
+                  {this.lottery['state'] == 'finished' &&
+                    '已结束'
+                  }
+                </Tag>
+              </div>
               <h2>发起人</h2>
-              <p>这是一段抽奖描述</p>
+              <p>{this.lottery['starter']}</p>
               <h2>参与人</h2>
-              <ul>
-                <li>书*1</li>
-                <li>书*1</li>
-                <li>书*1</li>
-              </ul>
-              <Button type="primary">参与抽奖</Button>
+              <div style={{ marginBottom: 15 }}>
+                {this.lottery['fans'] != null &&
+                  this.lottery['fans'].map((fan) =>
+                    <li key={fan['id']}>{fan['id'] + '（' + fan['username'] + '）'}</li>
+                  )
+                }
+                {(this.lottery['fans'] == null || this.lottery['fans'].length == 0) &&
+                  <p>当前还没有人参与</p>
+                }
+              </div>
+              <h2>获奖者</h2>
+              <div style={{ marginBottom: 15 }}>
+                {this.lottery['winner'] != null &&
+                  this.lottery['winner'].map((fan) =>
+                    <li key={fan['id']}>{fan['id'] + '（' + fan['username'] + '）'}</li>
+                  )
+                }
+                {(this.lottery['winner'] == null || this.lottery['winner'].length == 0) &&
+                  <p>还未开奖</p>
+                }
+              </div>
+              <div style={{ marginBottom: 15 }}><Button type="primary" onClick={this.showModal}>参与抽奖</Button></div>
+              <Modal
+                title="输入手机号或邮箱"
+                visible={this.state.visible}
+                onOk={this.handleOk}
+                onCancel={this.handleCancel}
+              >
+                <p>输入手机号或邮箱（作为领奖的凭证）</p>
+                <Input ref="email" onChange={this.usernameChange} />
+              </Modal>
+              <div><Button type="primary" onClick={this.handleOpen}>开奖</Button></div>
             </Col >
-            <Col span={6} />
+            <Col span={5} />
           </Row>
         </div>
       </div>
