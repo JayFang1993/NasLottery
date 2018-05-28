@@ -3,6 +3,7 @@ var Lottery = function (text) {
     if (text) {
         var o = JSON.parse(text)
         this.id = o.messageId
+        this.messageId = o.messageId
         this.starter = o.starter // 发起人
         this.title = o.title // 抽奖标题
         this.desc = o.desc // 抽奖描述
@@ -13,6 +14,7 @@ var Lottery = function (text) {
         this.winner = o.winner // 中奖的人
     } else {
         this.id = 0
+        this.messageId = 0
         this.starter = ''
         this.title = ''
         this.desc = ''
@@ -102,7 +104,7 @@ LotteryContract.prototype = {
         if (Lottery == undefined) {
             return {
                 'errcode': -1,
-                'msg': 'no this lottery'
+                'msg': '不存在这个抽奖活动'
             }
         }
         return {
@@ -115,7 +117,7 @@ LotteryContract.prototype = {
         if (Lottery == undefined) {
             return {
                 'errcode': -1,
-                'msg': 'no this lottery'
+                'msg': '不存在这个抽奖活动'
             }
         }
         var joiner = {
@@ -128,7 +130,7 @@ LotteryContract.prototype = {
                 if (fan['id'] == joiner['id']) {
                     return {
                         'errcode': -1,
-                        'msg': 'have joined'
+                        'msg': '你已经参加了该抽奖活动'
                     }
                 }
             }
@@ -141,7 +143,7 @@ LotteryContract.prototype = {
         } else {
             return {
                 'errcode': -1,
-                'msg': 'the lottery finished'
+                'msg': '这个抽奖活动已结束'
             }
         }
     },
@@ -150,14 +152,14 @@ LotteryContract.prototype = {
         if (Lottery == undefined) {
             return {
                 'errcode': -1,
-                'msg': 'no this lottery'
+                'msg': '不存在这个抽奖活动'
             }
         }
         if (Lottery.state == 'ing') {
             if (Lottery.starter != Blockchain.transaction.from) {
                 return {
                     'errcode': -1,
-                    'msg': 'you are not the starter'
+                    'msg': '你不是该抽奖活动的发起人'
                 }
             }
             var joiners = Lottery.fans.slice()
@@ -183,11 +185,10 @@ LotteryContract.prototype = {
         } else {
             return {
                 'errcode': -1,
-                'msg': 'the lottery finished'
+                'msg': '这个抽奖活动已结束'
             }
         }
     }
-
 }
 
 module.exports = LotteryContract

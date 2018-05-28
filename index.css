@@ -42,6 +42,13 @@ body,
   font-size: 1.8rem;
 }
 
+.lottery_header_install{
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+}
+
 .lottery_content {
   margin-left: 150px;
   margin-right: 150px;
@@ -60,6 +67,10 @@ body,
   transition: box-shadow .3s ease-in-out;
   display: block;
   cursor: pointer;
+}
+
+.lottery_guide_page {
+  display: inline;
 }
 
 .events-box img {

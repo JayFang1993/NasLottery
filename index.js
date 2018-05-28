@@ -19,7 +19,7 @@ var Nebulas = require('nebulas')
 var nebPay = new NebPay();
 var neb = new Nebulas.Neb(new Nebulas.HttpRequest("https://testnet.nebulas.io"));
 var Account = Nebulas.Account;
-const dappAddress = "n1zpWAVdpwvtRFRgt8X89yojk2wAXGztMSy"
+const dappAddress = "n1nHDBrhjb93gqg1kHEtUrCbgHWc4654UcR"
 
 function addLottery(title, desc, award, awardCount, callback) {
   var value = "0";
@@ -40,7 +40,7 @@ class IndexPage extends React.Component {
     });
   }
   getPlanList = () => {
-    var from = "n1Xw19Rfx3RxUnTTHtuYkwGrF42HwdXiZMB"
+    var from = "n1VV3aE48MCn6PDj6vGVUmoW8Kab7pNUWbm"
     var value = "0";
     var nonce = "0"
     var gas_price = "1000000"
@@ -53,6 +53,7 @@ class IndexPage extends React.Component {
     neb.api.call(from, dappAddress, value, nonce, gas_price, gas_limit, contract).then((resp) => {
       var result = JSON.parse(resp['result']);
       this.listData = result['lotteries'];
+      console.log(this.listData)
       this.forceUpdate()
     });
   }
@@ -60,22 +61,25 @@ class IndexPage extends React.Component {
     this.getPlanList()
   }
   render() {
-    const AddFormDialog = Form.create()(AddForm);
     return (
       <div>
         <div>
           <div>
             <Row className="lottery_header">
-              <Col span={6} className="lottery_header_item"><img className="lottery_header_img" src="https://nebulas.io/assets/images/nebulasx60.png" /></Col>
-              <Col span={8} offset={2} className="lottery_header_item"><center>去中心化抽奖系统</center></Col>
-              <Col span={4} offset={4} className="lottery_header_item"><Button onClick={this.showModal} type="primary">发起抽奖</Button></Col>
+              <Col span={8} className="lottery_header_item"><Link to='/'><img className="lottery_header_img" src="https://nebulas.io/assets/images/nebulasx60.png" /></Link></Col>
+              <Col span={8} className="lottery_header_item"><center>星云抽奖</center></Col>
+              <Col span={6} className="lottery_header_install"><a href="https://github.com/ChengOrangeJu/WebExtensionWallet">使用前必须安装WebExtensionWallet钱包插件</a></Col>
+              <Col span={2} className="lottery_header_item"><Button onClick={this.showModal} type="primary">发起抽奖</Button></Col>
             </Row>
-            <AddFormDialog visable={this.state.visible} />
+            <AddFormDialog visible={this.state.visible} />
           </div>
-          <Carousel autoplay className="lottery_pics">
-            <img src="imgs/page1.png" />
-            <img src="imgs/page1.png" />
-          </Carousel>
+          <div>
+
+            <Carousel autoplay>
+              <img src="imgs/page1.png" />
+              <img src="imgs/page2.png" />
+            </Carousel>
+          </div>
         </div>
         <Row>
           <Col className="lottery_title" span={24}>正在进行的抽奖</Col>
@@ -86,10 +90,10 @@ class IndexPage extends React.Component {
             dataSource={this.listData}
             renderItem={item => (
               <List.Item>
-                <Link to='/lottery/1'>
+                <Link to={'/lottery/' + item['awardCount']}>
                   <div className="events-box">
                     <div className="card-img">
-                      <img src="https://nebulas.io/assets/images/events/consensus-2018.jpg" />
+                      <img src={"./imgs/bg" + parseInt(Math.random() * 4 + 1) + ".png"} />
                     </div>
                     <div className="text-content">
                       <Tag style={{ marginBottom: 16 }} color="#f50">
@@ -123,7 +127,7 @@ class IndexPage extends React.Component {
 
 class AddForm extends React.Component {
   state = {
-    visable: false
+    visible: false
   }
 
   submitCallback = (resp) => {
@@ -133,10 +137,10 @@ class AddForm extends React.Component {
         if (receipt["status"] === 2) {
           message.warning('交易中，请稍后...', 2);
         } else if (receipt["status"] === 1) {
-          message.success('交易成功!!!');
+          message.success('交易成功');
           clearInterval(intervalQuery)
         } else {
-          message.error('交易失败!!!');
+          message.error('交易失败');
           clearInterval(intervalQuery)
         }
       });
@@ -150,18 +154,18 @@ class AddForm extends React.Component {
     var awardCount = this.props.form.getFieldValue('awardCount')
     addLottery(title, desc, award, awardCount, this.submitCallback)
     this.setState({
-      visable: false
+      visible: false
     })
   }
 
   onCancel = () => {
     this.setState({
-      visable: false
+      visible: false
     })
   }
 
   componentWillReceiveProps(newProps) {
-    this.setState({ visable: newProps.visable });
+    this.setState({ visible: newProps.visible });
   }
   render() {
     const { getFieldDecorator } = this.props.form;
@@ -169,7 +173,7 @@ class AddForm extends React.Component {
     return (
       <Modal
         title="发起抽奖活动"
-        visible={this.state.visable}
+        visible={this.state.visible}
         onCancel={this.onCancel}
         footer={[]}
       >
@@ -222,6 +226,8 @@ class AddForm extends React.Component {
   }
 }
 
+const AddFormDialog = Form.create()(AddForm);
+
 class DetailPage extends React.Component {
   lottery = {}
   username = ''
@@ -236,10 +242,16 @@ class DetailPage extends React.Component {
         if (receipt["status"] === 2) {
           message.warning('交易中，请稍后...', 2);
         } else if (receipt["status"] === 1) {
-          message.success('交易成功!!!');
+          var result = JSON.parse(receipt["execute_result"]);
+          if (result["errorcode"] != 0) {
+            message.error(result["msg"]);
+          } else {
+            message.success('交易成功');
+            this.forceUpdate()
+          }
           clearInterval(intervalQuery)
         } else {
-          message.error('交易失败!!!');
+          message.error('交易失败');
           clearInterval(intervalQuery)
         }
       });
@@ -267,7 +279,7 @@ class DetailPage extends React.Component {
     this.openLottery(id)
   }
   getLottery = (id) => {
-    var from = "n1Xw19Rfx3RxUnTTHtuYkwGrF42HwdXiZMB"
+    var from = "n1VV3aE48MCn6PDj6vGVUmoW8Kab7pNUWbm"
     var value = "0";
     var nonce = "0"
     var gas_price = "1000000"
@@ -310,8 +322,8 @@ class DetailPage extends React.Component {
         <div>
           <div>
             <Row className="lottery_header">
-              <Col span={6} className="lottery_header_item"><img className="lottery_header_img" src="https://nebulas.io/assets/images/nebulasx60.png" /></Col>
-              <Col span={8} offset={2} className="lottery_header_item"><center>去中心化抽奖系统</center></Col>
+              <Col span={6} className="lottery_header_item"><Link to='/'><img className="lottery_header_img" src="https://nebulas.io/assets/images/nebulasx60.png" /></Link></Col>
+              <Col span={8} offset={2} className="lottery_header_item"><center>星云抽奖</center></Col>
             </Row>
           </div>
           <Row style={{ marginTop: 50, marginBottom: 50 }}>
