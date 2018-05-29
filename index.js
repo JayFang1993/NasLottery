@@ -14,7 +14,6 @@ const { TextArea } = Input;
 const FormItem = Form.Item;
 var NebPay = require("nebpay");
 var Nebulas = require('nebulas')
-//交易地址：581040fa7570c118d34486e53c383cc37e39243f0c82316cd004daf667635546
 
 var nebPay = new NebPay();
 var neb = new Nebulas.Neb(new Nebulas.HttpRequest("https://testnet.nebulas.io"));
@@ -40,7 +39,7 @@ class IndexPage extends React.Component {
     });
   }
   getPlanList = () => {
-    var from = "n1VV3aE48MCn6PDj6vGVUmoW8Kab7pNUWbm"
+    var from = "n1JeGQzges7KXzeMqP1u26izTqRVuhPsWTc"
     var value = "0";
     var nonce = "0"
     var gas_price = "1000000"
@@ -68,8 +67,8 @@ class IndexPage extends React.Component {
             <Row className="lottery_header">
               <Col span={8} className="lottery_header_item"><Link to='/'><img className="lottery_header_img" src="https://nebulas.io/assets/images/nebulasx60.png" /></Link></Col>
               <Col span={8} className="lottery_header_item"><center>星云抽奖</center></Col>
-              <Col span={6} className="lottery_header_install"><a href="https://github.com/ChengOrangeJu/WebExtensionWallet">使用前必须安装WebExtensionWallet钱包插件</a></Col>
-              <Col span={2} className="lottery_header_item"><Button onClick={this.showModal} type="primary">发起抽奖</Button></Col>
+              <Col span={7} className="lottery_header_install"><a href="https://github.com/ChengOrangeJu/WebExtensionWallet">使用前必须安装WebExtensionWallet</a></Col>
+              <Col span={1} className="lottery_header_item"><Button onClick={this.showModal} type="primary">发起抽奖</Button></Col>
             </Row>
             <AddFormDialog visible={this.state.visible} />
           </div>
@@ -90,7 +89,7 @@ class IndexPage extends React.Component {
             dataSource={this.listData}
             renderItem={item => (
               <List.Item>
-                <Link to={'/lottery/' + item['awardCount']}>
+                <Link to={'/lottery/' + item['messageId']}>
                   <div className="events-box">
                     <div className="card-img">
                       <img src={"./imgs/bg" + parseInt(Math.random() * 4 + 1) + ".png"} />

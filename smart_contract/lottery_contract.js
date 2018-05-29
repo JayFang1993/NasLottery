@@ -82,9 +82,10 @@ LotteryContract.prototype = {
     },
     addLottery: function (title, desc, award, awardCount) {
         this.lotteryCount++
-            var id = this.lotteryCount
+        var id = this.lotteryCount
         var LotteryObj = new Lottery()
         LotteryObj.id = id
+        LotteryObj.messageId = id
         LotteryObj.starter = Blockchain.transaction.from
         LotteryObj.title = title
         LotteryObj.desc = desc
